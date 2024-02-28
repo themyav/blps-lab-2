@@ -1,6 +1,6 @@
 package com.blps.lab1;
 
-import com.blps.lab1.entity.User;
+import com.blps.lab1.model.User;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import com.blps.lab1.repo.UserRepository;

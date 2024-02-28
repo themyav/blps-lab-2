@@ -1,4 +1,4 @@
-package com.blps.lab1.entity;
+package com.blps.lab1.model;
 
 import jakarta.persistence.*;
 

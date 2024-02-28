@@ -1,5 +1,6 @@
-package com.blps.lab1.entity;
+package com.blps.lab1.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,9 +11,21 @@ public class Vacancy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
+    private Long authorId;
+
+    @ManyToOne
+    @JoinColumn(name = "authorId", insertable = false, updatable = false)
+    @JsonIgnore
+    private User user;
+    @Column(nullable = false)
     private String title;
+    @Column(nullable = false)
     private String description;
-    private boolean published;
+
+    private boolean published = false;
+
 
     public Long getId() {
         return id;
@@ -46,4 +59,15 @@ public class Vacancy {
         this.published = published;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Long getAuthorId() {
+        return authorId;
+    }
 }
