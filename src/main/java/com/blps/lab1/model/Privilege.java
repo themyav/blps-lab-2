@@ -17,6 +17,10 @@ public class Privilege implements GrantedAuthority {
         this.roles = roles;
     }
 
+    public Privilege(String name) {
+        this.name = name;
+    }
+
     private String name;
 
     @ManyToMany(mappedBy = "privileges")

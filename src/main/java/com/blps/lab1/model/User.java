@@ -2,10 +2,8 @@ package com.blps.lab1.model;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+
 
 @Entity
 @Table(name = "superjob_users")
@@ -21,6 +19,14 @@ public class User {
     private String email;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Balance balance;
+
+    public Collection<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Collection<Role> roles) {
+        this.roles = roles;
+    }
 
     @ManyToMany
     @JoinTable(

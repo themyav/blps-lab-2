@@ -1,16 +1,12 @@
 package com.blps.lab1;
 
-import com.blps.lab1.model.Privilege;
 import com.blps.lab1.model.User;
-import com.blps.lab1.repo.PrivilegeNames;
 import com.blps.lab1.service.UserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import com.blps.lab1.repo.UserRepository;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import java.util.ArrayList;
-import java.util.Arrays;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.context.request.RequestContextListener;
 
 @SpringBootApplication
 public class Lab1Application {
@@ -24,6 +20,11 @@ public class Lab1Application {
 		userService.save(user);
 
 
+	}
+
+	@Bean
+	public RequestContextListener requestContextListener() {
+		return new RequestContextListener();
 	}
 
 }
