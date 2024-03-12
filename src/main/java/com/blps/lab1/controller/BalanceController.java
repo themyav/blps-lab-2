@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/balance")
 public class BalanceController {
@@ -17,6 +19,8 @@ public class BalanceController {
 
     @PostMapping("/{id}/deposit")
     public ResponseEntity<?> deposit(@PathVariable Long id, @RequestBody Balance balance) {
+        if(balance.getUserId() == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Объект баланса не содержит id пользователя");
+        if(!Objects.equals(balance.getUserId(), id)) return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id получателей не совпадают");
         Double amount = balance.getAmount();
         if(amount < balanceService.MIN_DEPOSIT) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Необходимо внести не менее " + balanceService.MIN_DEPOSIT);
