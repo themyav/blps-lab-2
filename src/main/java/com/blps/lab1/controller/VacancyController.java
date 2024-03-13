@@ -32,31 +32,16 @@ public class VacancyController {
     @PostMapping("/publish")
     public ResponseEntity<?> publishVacancy(@RequestBody Vacancy vacancy) {
 
-        //проверка того, что вакансия содержит все необходимые поля
-        Result validationResult = vacancyService.validateVacancy(vacancy);
-        if(validationResult.getCode() != 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(validationResult.getMessage());
-        }
+        Result publishResult = vacancyService.processPublication(vacancy);
 
-        //проверка того, что вакансия отправлена существующим пользователем
-        Long userId = vacancy.getAuthorId();
-        Result userValidation = balanceService.exist(userId);
-        if(userValidation.getCode() != 0){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(validationResult.getMessage());
-        }
-
-
-        Result withdrawalResult = balanceService.withdraw(userId, balanceService.PUBLISH_COST);
-
-        if (withdrawalResult.getCode() == 0) {
-            Vacancy publishedVacancy = vacancyService.publish(vacancy);
-            return ResponseEntity.ok(publishedVacancy);
+        if (publishResult == Result.OK) {
+            return ResponseEntity.ok(vacancy); //TODO maybe published vacancy
         } else {
-            String errorMessage = withdrawalResult.getMessage();
-            if (withdrawalResult.getCode() == 1) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
-            } else {
+            String errorMessage = publishResult.getMessage();
+            if (publishResult == Result.USER_NOT_FOUND) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
             }
         }
     }

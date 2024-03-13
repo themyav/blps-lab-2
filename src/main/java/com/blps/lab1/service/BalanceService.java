@@ -38,6 +38,7 @@ public class BalanceService {
         else return Result.OK;
     }
 
+
     public Result deposit(Long id, Double amount) {
         Balance balance = get(id);
         if (balance == null) {
@@ -99,8 +100,4 @@ public class BalanceService {
             return Result.NOT_ENOUGH_BALANCE;
         }
     }
-
-
-
-
 }
