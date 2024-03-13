@@ -12,11 +12,17 @@ public class VacancyService {
     @Autowired
     private VacancyRepository vacancyRepository;
 
-    public Result checkVacancy(Vacancy vacancy){
-        if(vacancy.getAuthorId() == null) return new Result(1, "Не указан автор");
-        if(vacancy.getTitle() == null) return new Result(2, "Не указано название");
-        if(vacancy.getDescription() == null)  return new Result(2, "Не указано описание");
-        return new Result(0, "ОК");
+    public Result validateVacancy(Vacancy vacancy){
+        if(vacancy.getAuthorId() == null) return Result.NO_VACANCY_AUTHOR;
+        if(vacancy.getTitle() == null) return Result.NO_VACANCY_TITLE;
+        if(vacancy.getDescription() == null)  return Result.NO_VACANCY_DESCRIPTION;
+        return Result.OK;
+    }
+
+
+    //Auto-moderator
+    public Boolean moderateVacancy(Vacancy vacancy){
+        return !vacancy.getTitle().contains("1C");
     }
 
     public Vacancy saveAsDraft(Vacancy vacancy) {

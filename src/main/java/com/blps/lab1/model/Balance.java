@@ -10,7 +10,9 @@ public class Balance {
     @Id
     private Long userId;
 
-    private Double amount = 0.0;
+    private Double realAmount = 0.0;
+
+    private Double frozenAmount = 0.0;
 
     private LocalDateTime timestamp = LocalDateTime.now();
 
@@ -27,12 +29,20 @@ public class Balance {
         this.userId = userId;
     }
 
-    public Double getAmount() {
-        return amount;
+    public Double getRealAmount() {
+        return realAmount;
     }
 
-    public void setAmount(Double amount) {
-        this.amount = amount;
+    public void setRealAmount(Double realAmount) {
+        this.realAmount = realAmount;
+    }
+
+    public Double getFrozenAmount() {
+        return frozenAmount;
+    }
+
+    public void setFrozenAmount(Double frozenAmount) {
+        this.frozenAmount = frozenAmount;
     }
 
     public User getUser() {

@@ -20,7 +20,7 @@ public class VacancyController {
 
     @PostMapping("/draft")
     public ResponseEntity<?> saveVacancyAsDraft(@RequestBody Vacancy vacancy) {
-        Result result = vacancyService.checkVacancy(vacancy);
+        Result result = vacancyService.validateVacancy(vacancy);
         if(result.getCode() != 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());
         }
@@ -32,11 +32,20 @@ public class VacancyController {
     @PostMapping("/publish")
     public ResponseEntity<?> publishVacancy(@RequestBody Vacancy vacancy) {
 
-        Result result = vacancyService.checkVacancy(vacancy);
-        if(result.getCode() != 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());
+        //проверка того, что вакансия содержит все необходимые поля
+        Result validationResult = vacancyService.validateVacancy(vacancy);
+        if(validationResult.getCode() != 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(validationResult.getMessage());
         }
+
+        //проверка того, что вакансия отправлена существующим пользователем
         Long userId = vacancy.getAuthorId();
+        Result userValidation = balanceService.exist(userId);
+        if(userValidation.getCode() != 0){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(validationResult.getMessage());
+        }
+
+
         Result withdrawalResult = balanceService.withdraw(userId, balanceService.PUBLISH_COST);
 
         if (withdrawalResult.getCode() == 0) {
