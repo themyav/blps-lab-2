@@ -48,6 +48,7 @@ public class VacancyService {
 
     }
 
+    //TODO типа тракзакция, но rollback следует делать ток если проблемы?
     public Result publishAttempt(Vacancy vacancy){
         Long userId = vacancy.getAuthorId();
 
