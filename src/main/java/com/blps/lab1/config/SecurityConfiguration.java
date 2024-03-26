@@ -1,4 +1,5 @@
 package com.blps.lab1.config;
+
 import com.blps.lab1.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -9,14 +10,10 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @EnableWebSecurity
@@ -44,19 +41,15 @@ public class SecurityConfiguration {
         //disable csrf for POST request!
         return httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(registry -> {
 
-            registry.requestMatchers(HttpMethod.POST,"/vacancy/draft").hasAuthority("POST_DRAFT");
+            registry.requestMatchers("/vacancy/published").permitAll();
+            registry.requestMatchers("/vacancy/draft").hasAuthority("POST_DRAFT");
             registry.requestMatchers("/vacancy/publish").hasAuthority("POST_VACANCY");
-            registry.requestMatchers("/vacancy/published").permitAll(); //hasAnyAuthority("VIEW_ALL_VACANCY");
-            //registry.requestMatchers("/vacancy/*/delete/*").hasAnyAuthority("DELETE_ANY_VACANCY", "DELETE_OWN_VACANCY");
 
-            registry.requestMatchers("vacancy/moderation").hasRole("MODERATOR"); //+
-            registry.requestMatchers("vacancy/moderation/*/publish").hasRole("MODERATOR"); //+
-            registry.requestMatchers("vacancy/moderation/*/decline").hasRole("MODERATOR"); //+
+            registry.requestMatchers("vacancy/moderation").hasAuthority("VIEW_ALL_MODERATION"); //+
+            registry.requestMatchers("vacancy/moderation/*/publish").hasRole("PUBLISH_MODERATED"); //+
+            registry.requestMatchers("vacancy/moderation/*/decline").hasRole("DECLINE_MODERATED"); //+
 
-            //registry.requestMatchers("/vacancy/*/draft/*").hasAnyAuthority("VIEW_ALL_DRAFTS", "VIEW_OWN_DRAFTS");
-            //registry.requestMatchers("vacancy/*/draft/delete/*").hasAnyAuthority("DELETE_ANY_VACANCY", "DELETE_OWN_VACANCY");
-
-            registry.requestMatchers("balance/*/deposit").hasAnyAuthority("DEPOSIT_OWN_BALANCE");
+            registry.requestMatchers("balance/*/deposit").hasAuthority("DEPOSIT_OWN_BALANCE");
             registry.anyRequest().authenticated();
         }).httpBasic(Customizer.withDefaults()).build();
     }

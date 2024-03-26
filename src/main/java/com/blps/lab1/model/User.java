@@ -1,10 +1,12 @@
 package com.blps.lab1.model;
 
+import com.blps.lab1.repo.ModeratorPrivileges;
+import com.blps.lab1.repo.RoleNames;
+import com.blps.lab1.repo.UserPrivileges;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 
 
 @Entity
@@ -25,6 +27,16 @@ public class User {
     //TODO length
     private String password;
 
+    public Boolean getModerator() {
+        return isModerator;
+    }
+
+    public void setModerator(Boolean moderator) {
+        isModerator = moderator;
+    }
+
+    private Boolean isModerator = false;
+
     public String getPassword() {
         return password;
     }
@@ -40,21 +52,31 @@ public class User {
         return roles;
     }
 
-    public Collection<Privilege> getAuthorities(){
-        Collection<Role> roles = this.getRoles();
-        if( roles == null) return null;
-        else{
-            HashSet<Privilege>privileges = new HashSet<>();
-            for(Role role : roles){
-                Collection<Privilege>current = role.getPrivileges();
-                if(current == null) continue;;
-                privileges.addAll(current);
-            }
-            return privileges;
+    public String[] getStringRoles(){
+        if(isModerator) return new String[]{"MODERATOR"};
+        else return new String[]{"USER"};
+    }
+
+    public String[] getAuthorities(){
+        ArrayList<String> privileges = new ArrayList<>();
+        for(UserPrivileges p : UserPrivileges.values()) privileges.add(p.name());
+
+        if (isModerator) {
+            for (ModeratorPrivileges p : ModeratorPrivileges.values()) privileges.add(p.name());
         }
+        return privileges.toArray(new String[0]);
+
     }
 
     public void setRoles(Collection<Role> roles) {
+        boolean moderatorRole = false;
+        for(Role r : roles){
+            if (Objects.equals(r.getName(), RoleNames.MODERATOR.name())) {
+                moderatorRole = true;
+                break;
+            }
+        }
+        isModerator = moderatorRole;
         this.roles = roles;
     }
 
@@ -75,6 +97,7 @@ public class User {
         this.password = password;
         this.balance = new Balance();
         this.balance.setUser(this);
+        this.roles = new ArrayList<>();
     }
 
     public User() {
