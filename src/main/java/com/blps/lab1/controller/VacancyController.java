@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/vacancy")
 
@@ -17,6 +19,11 @@ public class VacancyController {
     private VacancyService vacancyService;
     @Autowired
     private BalanceService balanceService;
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Vacancy>> getAll(){
+        return ResponseEntity.ok(vacancyService.getAll());
+    }
 
     @PostMapping("/draft")
     public ResponseEntity<?> saveVacancyAsDraft(@RequestBody Vacancy vacancy) {

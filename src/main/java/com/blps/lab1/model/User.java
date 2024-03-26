@@ -1,8 +1,10 @@
 package com.blps.lab1.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 
 @Entity
@@ -17,11 +19,39 @@ public class User {
     private String lastName;
     @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(nullable = false)
+    @JsonIgnore
+    //TODO length
+    private String password;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Balance balance;
 
     public Collection<Role> getRoles() {
         return roles;
+    }
+
+    public Collection<Privilege> getAuthorities(){
+        Collection<Role> roles = this.getRoles();
+        if( roles == null) return null;
+        else{
+            HashSet<Privilege>privileges = new HashSet<>();
+            for(Role role : roles){
+                Collection<Privilege>current = role.getPrivileges();
+                if(current == null) continue;;
+                privileges.addAll(current);
+            }
+            return privileges;
+        }
     }
 
     public void setRoles(Collection<Role> roles) {
@@ -38,10 +68,11 @@ public class User {
     private Collection<Role> roles;
 
 
-    public User(String firstName, String lastName, String email) {
+    public User(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.password = password;
         this.balance = new Balance();
         this.balance.setUser(this);
     }

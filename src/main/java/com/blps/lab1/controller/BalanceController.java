@@ -1,6 +1,7 @@
 package com.blps.lab1.controller;
 
 import com.blps.lab1.model.Balance;
+import com.blps.lab1.model.BalanceDTO;
 import com.blps.lab1.util.Result;
 import com.blps.lab1.service.BalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -16,6 +18,11 @@ public class BalanceController {
 
     @Autowired
     private BalanceService balanceService;
+
+    @GetMapping("/all")
+    private ResponseEntity<List<BalanceDTO>> getAll(){
+        return ResponseEntity.ok(balanceService.getAll());
+    }
 
     @PostMapping("/{id}/deposit")
     public ResponseEntity<?> deposit(@PathVariable Long id, @RequestBody Balance balance) {

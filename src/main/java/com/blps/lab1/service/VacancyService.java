@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.List;
+
 @Service
 public class VacancyService {
 
@@ -24,6 +26,9 @@ public class VacancyService {
         this.transactionTemplate = transactionTemplate;
     }
 
+    public List<Vacancy> getAll(){
+        return vacancyRepository.findAll();
+    }
 
     public Result validateVacancy(Vacancy vacancy){
         if(vacancy.getAuthorId() == null) return Result.NO_VACANCY_AUTHOR;

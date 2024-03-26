@@ -48,25 +48,24 @@ public class SetupDataLoader implements
         Privilege removeModerator = privilegeService.create("REMOVE_MODERATOR");
 
         List<Privilege> userPrivileges = new ArrayList<>(Arrays.asList(postOwnVacancy, deleteOwnVacancy, viewAllVacancy, depositOwnBalance, checkOwnBalance));
-        roleService.create("ROLE_USER", userPrivileges);
+        roleService.create("USER", userPrivileges);
 
         List<Privilege> moderatorPrivileges = new ArrayList<>(Arrays.asList(deleteAnyVacancy, checkAnyBalance));
         moderatorPrivileges.addAll(userPrivileges);
-        roleService.create("ROLE_MODERATOR", moderatorPrivileges);
+        roleService.create("MODERATOR", moderatorPrivileges);
 
         List<Privilege> adminPrivileges = new ArrayList<>(Arrays.asList(assignModerator, removeModerator));
         adminPrivileges.addAll(moderatorPrivileges);
-        roleService.create("ROLE_ADMIN", adminPrivileges);
+        roleService.create("ADMIN", adminPrivileges);
 
-        Role adminRole = roleService.findByName("ROLE_ADMIN");
-        User user = new User();
-        user.setFirstName("Test");
-        user.setLastName("Test");
-        //user.setPassword(passwordEncoder.encode("test"));
-        user.setEmail("test@test.com");
+        Role adminRole = roleService.findByName("ADMIN");
+        User user = new User("a", "a", "a", "$2a$12$jdwdPUMEqNBrxmjyxJhKBuExnSjjKgGu3.W/PcizEn8c4koXfj5Je");
         user.setRoles(Collections.singletonList(adminRole));
-        //user.setEnabled(true);
         userService.save(user);
+
+        User user1 = new User("Иван", "Иванов", "Ivan@ivan.ru", "$2a$12$jdwdPUMEqNBrxmjyxJhKBuExnSjjKgGu3.W/PcizEn8c4koXfj5Je");
+        user1.setRoles(Collections.singletonList(roleService.findByName("USER")));
+        userService.save(user1);
 
         alreadySetup = true;
     }

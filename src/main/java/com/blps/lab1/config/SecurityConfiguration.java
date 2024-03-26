@@ -1,7 +1,11 @@
 package com.blps.lab1.config;
+import com.blps.lab1.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,30 +23,31 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfiguration {
 
+    @Autowired
+    private MyUserDetailsService userDetailService;
+
     @Bean
     public UserDetailsService userDetailsService() {
-        UserDetails normalUser = User.builder()
-                .username("gc")
-                .password("$2a$12$pLlEDlW7J3LJMLMl0Uv8Xu.NO1TYDvrMmIpoDhpHZ3So65XlsR.Vy")
-                .roles("USER")
-                .authorities("CAN_PUBLISH")
-                .build();
-        UserDetails adminUser = User.builder()
-                .username("admin")
-                .password("$2a$12$4MVGfzHJ2C370at3MTGHdeX6z/kon2X5KbVWZTGfqjWBhj.KnQBuC")
-                .roles("ADMIN", "USER")
-                .build();
-        return new InMemoryUserDetailsManager(normalUser, adminUser);
+        return userDetailService;
     }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        //тут все ок
-        return httpSecurity.authorizeHttpRequests(registry -> {
+        //disable csrf for POST request!
+        return httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(registry -> {
             registry.requestMatchers("/home").permitAll();
             registry.requestMatchers("/vacancy/publish").hasRole("ADMIN");
-            registry.requestMatchers("/vacancy/draft").hasAuthority("CAN_PUBLISH");
+            registry.requestMatchers(HttpMethod.POST,"/vacancy/draft").permitAll();
             registry.anyRequest().authenticated();
-        }).httpBasic(Customizer.withDefaults()).formLogin(Customizer.withDefaults()).build();
+        }).httpBasic(Customizer.withDefaults()).build();
     }
     @Bean
     public PasswordEncoder passwordEncoder() {

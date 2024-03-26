@@ -1,11 +1,17 @@
 package com.blps.lab1.service;
 
 import com.blps.lab1.model.Balance;
+import com.blps.lab1.model.BalanceDTO;
+import com.blps.lab1.repo.UserRepository;
 import com.blps.lab1.util.Result;
 import com.blps.lab1.repo.BalanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BalanceService {
@@ -19,6 +25,9 @@ public class BalanceService {
     @Autowired
     private BalanceRepository balanceRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     public BalanceService(TransactionTemplate transactionTemplate) {
         this.transactionTemplate = transactionTemplate;
     }
@@ -31,6 +40,15 @@ public class BalanceService {
         Balance balance = balanceRepository.findById(id).orElse(null);
         if(balance == null) return null;
         return balance.getRealAmount();
+    }
+
+    public List<BalanceDTO> getAll(){
+        List<Balance> balances = balanceRepository.findAll();
+        List<BalanceDTO> dtos = new ArrayList<>();
+        for(Balance b : balances){
+            dtos.add(new BalanceDTO(b.getRealAmount(), b.getFrozenAmount(), Objects.requireNonNull(userRepository.findById(b.getUserId()).orElse(null)).getEmail()));
+        }
+        return dtos;
     }
 
     public Result exist(Long id){
