@@ -10,8 +10,9 @@ public enum Result {
     NO_VACANCY_DESCRIPTION(2, "не указано описание вакансии"),
     NO_VACANCY_TITLE(3, "не указано название вакансии"),
     NO_VACANCY_AUTHOR(4, "не указан автор вакансии"),
+    UNKNOWN_ERROR(5, "ошибка во время выполнения операции"),
 
-    UNKNOWN_ERROR(5, "ошибка во время выполнения операции");
+    VACANCY_NOT_FOUND(6, "вакансия не найдена");
         private int code;
 
 

@@ -1,6 +1,5 @@
 package com.blps.lab1.service;
 
-import com.blps.lab1.repo.BalanceRepository;
 import com.blps.lab1.util.Result;
 import com.blps.lab1.model.Vacancy;
 import com.blps.lab1.repo.VacancyRepository;
@@ -26,8 +25,12 @@ public class VacancyService {
         this.transactionTemplate = transactionTemplate;
     }
 
-    public List<Vacancy> getAll(){
-        return vacancyRepository.findAll();
+    public List<Vacancy> getAllPublished(){
+        return vacancyRepository.findAll().stream().filter(Vacancy::isPublished).toList();
+    }
+
+    public List<Vacancy>getAllForModeration(){
+        return vacancyRepository.findAll().stream().filter(Vacancy::isOnModeration).toList();
     }
 
     public Result validateVacancy(Vacancy vacancy){
@@ -35,6 +38,11 @@ public class VacancyService {
         if(vacancy.getTitle() == null) return Result.NO_VACANCY_TITLE;
         if(vacancy.getDescription() == null)  return Result.NO_VACANCY_DESCRIPTION;
         return Result.OK;
+    }
+
+    //Auto-moderator
+    public Boolean autoModerateVacancy(Vacancy vacancy){
+        return !vacancy.getTitle().contains("1C");
     }
 
     public Result processPublication(Vacancy vacancy){
@@ -64,7 +72,7 @@ public class VacancyService {
                 return freezeResult;
             }
 
-            Boolean vacancyApproved = moderateVacancy(vacancy);
+            Boolean vacancyApproved = autoModerateVacancy(vacancy);
 
             Result defreezeResult = balanceService.defreeze(userId, balanceService.PUBLISH_COST);
             if(defreezeResult != Result.OK) {
@@ -81,20 +89,31 @@ public class VacancyService {
         });
     }
 
-
-
-    //Auto-moderator
-    public Boolean moderateVacancy(Vacancy vacancy){
-        return !vacancy.getTitle().contains("1C");
+    public Vacancy declineModerated(Long id){
+        Vacancy vacancy = vacancyRepository.findById(id).orElse(null);
+        if(vacancy != null){
+            vacancy.setOnModeration(false);
+            return vacancyRepository.save(vacancy);
+        }
+        else return null;
     }
 
-    public Vacancy saveAsDraft(Vacancy vacancy) {
-        vacancy.setPublished(false);
-        return vacancyRepository.save(vacancy);
+    public Vacancy publishModerated(Long id){
+        Vacancy vacancy = vacancyRepository.findById(id).orElse(null);
+        if(vacancy != null){
+            return publish(vacancy);
+        }
+        else return null;
     }
 
     public Vacancy publish(Vacancy vacancy) {
         vacancy.setPublished(true);
+        vacancy.setOnModeration(false);
+        return vacancyRepository.save(vacancy);
+    }
+
+    public Vacancy saveAsDraft(Vacancy vacancy) {
+        vacancy.setPublished(false);
         return vacancyRepository.save(vacancy);
     }
 }

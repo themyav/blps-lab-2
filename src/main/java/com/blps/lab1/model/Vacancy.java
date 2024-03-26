@@ -26,6 +26,17 @@ public class Vacancy {
 
     private boolean published = false;
 
+    private boolean onModeration = false;
+
+
+    public boolean isOnModeration() {
+        return onModeration;
+    }
+
+    public void setOnModeration(boolean onModeration) {
+        this.onModeration = onModeration;
+    }
+
 
     public Long getId() {
         return id;

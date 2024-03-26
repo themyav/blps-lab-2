@@ -1,5 +1,6 @@
 package com.blps.lab1.controller;
 
+import com.blps.lab1.util.ModeratorComment;
 import com.blps.lab1.util.Result;
 import com.blps.lab1.service.BalanceService;
 import com.blps.lab1.service.VacancyService;
@@ -17,13 +18,31 @@ import java.util.List;
 public class VacancyController {
     @Autowired
     private VacancyService vacancyService;
-    @Autowired
-    private BalanceService balanceService;
 
-    @GetMapping("/all")
+    @GetMapping("/published")
     public ResponseEntity<List<Vacancy>> getAll(){
-        return ResponseEntity.ok(vacancyService.getAll());
+        return ResponseEntity.ok(vacancyService.getAllPublished());
     }
+
+    @GetMapping("/moderation")
+    public ResponseEntity<List<Vacancy>> getAllForModeration(){
+        return ResponseEntity.ok(vacancyService.getAllForModeration());
+    }
+
+    @GetMapping("vacancy/moderation/{id}/publish")
+    public ResponseEntity<?> publishModerated(@PathVariable Long id){
+        Vacancy vacancy = vacancyService.publishModerated(id);
+        if(vacancy != null) return ResponseEntity.ok(vacancy);
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Result.VACANCY_NOT_FOUND.name());
+    }
+
+    @PostMapping("vacancy/moderation/{id}/decline")
+    public ResponseEntity<?> declineModerated(@PathVariable Long id, @RequestBody ModeratorComment comment){
+        Vacancy vacancy = vacancyService.declineModerated(id);
+        if(vacancy != null) return ResponseEntity.ok(comment.getComment());
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Result.VACANCY_NOT_FOUND.name());
+    }
+
 
     @PostMapping("/draft")
     public ResponseEntity<?> saveVacancyAsDraft(@RequestBody Vacancy vacancy) {

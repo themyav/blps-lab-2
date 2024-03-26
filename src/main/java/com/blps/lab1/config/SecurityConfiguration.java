@@ -43,9 +43,20 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         //disable csrf for POST request!
         return httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(registry -> {
-            registry.requestMatchers("/home").permitAll();
-            registry.requestMatchers("/vacancy/publish").hasRole("ADMIN");
-            registry.requestMatchers(HttpMethod.POST,"/vacancy/draft").permitAll();
+
+            registry.requestMatchers(HttpMethod.POST,"/vacancy/draft").hasAuthority("POST_DRAFT");
+            registry.requestMatchers("/vacancy/publish").hasAuthority("POST_VACANCY");
+            registry.requestMatchers("/vacancy/published").permitAll(); //hasAnyAuthority("VIEW_ALL_VACANCY");
+            //registry.requestMatchers("/vacancy/*/delete/*").hasAnyAuthority("DELETE_ANY_VACANCY", "DELETE_OWN_VACANCY");
+
+            registry.requestMatchers("vacancy/moderation").hasRole("MODERATOR"); //+
+            registry.requestMatchers("vacancy/moderation/*/publish").hasRole("MODERATOR"); //+
+            registry.requestMatchers("vacancy/moderation/*/decline").hasRole("MODERATOR"); //+
+
+            //registry.requestMatchers("/vacancy/*/draft/*").hasAnyAuthority("VIEW_ALL_DRAFTS", "VIEW_OWN_DRAFTS");
+            //registry.requestMatchers("vacancy/*/draft/delete/*").hasAnyAuthority("DELETE_ANY_VACANCY", "DELETE_OWN_VACANCY");
+
+            registry.requestMatchers("balance/*/deposit").hasAnyAuthority("DEPOSIT_OWN_BALANCE");
             registry.anyRequest().authenticated();
         }).httpBasic(Customizer.withDefaults()).build();
     }

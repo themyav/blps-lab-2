@@ -37,20 +37,28 @@ public class SetupDataLoader implements
     public void onApplicationEvent(ContextRefreshedEvent event) {
 
         if (alreadySetup) return;
-        Privilege postOwnVacancy = privilegeService.create("POST_VACANCY");
-        Privilege deleteOwnVacancy = privilegeService.create("DELETE_OWN_VACANCY");
-        Privilege viewAllVacancy = privilegeService.create("VIEW_ALL_VACANCY");
-        Privilege deleteAnyVacancy = privilegeService.create("DELETE_ANY_VACANCY");
-        Privilege depositOwnBalance = privilegeService.create("DEPOSIT_OWN_BALANCE");
-        Privilege checkOwnBalance = privilegeService.create("CHECK_OWN_BALANCE");
-        Privilege checkAnyBalance = privilegeService.create("CHECK_ANY_BALANCE");
-        Privilege assignModerator = privilegeService.create("ASSIGN_MODERATOR");
-        Privilege removeModerator = privilegeService.create("REMOVE_MODERATOR");
+        Privilege postDraft = privilegeService.create("POST_DRAFT"); //+
+        Privilege postOwnVacancy = privilegeService.create("POST_VACANCY"); //+
 
-        List<Privilege> userPrivileges = new ArrayList<>(Arrays.asList(postOwnVacancy, deleteOwnVacancy, viewAllVacancy, depositOwnBalance, checkOwnBalance));
+        Privilege deleteOwnVacancy = privilegeService.create("DELETE_OWN_VACANCY"); //no
+        Privilege deleteAnyVacancy = privilegeService.create("DELETE_ANY_VACANCY"); //no
+
+        Privilege viewAllVacancy = privilegeService.create("VIEW_ALL_VACANCY"); //+
+
+        Privilege viewOwnDrafts = privilegeService.create("VIEW_OWN_DRAFTS"); //no
+        Privilege viewAllDrafts = privilegeService.create("VIEW_ALL_DRAFTS"); //no
+        Privilege depositOwnBalance = privilegeService.create("DEPOSIT_OWN_BALANCE"); //+
+
+        Privilege checkOwnBalance = privilegeService.create("CHECK_OWN_BALANCE"); //no
+        Privilege checkAnyBalance = privilegeService.create("CHECK_ANY_BALANCE"); //no
+
+        Privilege assignModerator = privilegeService.create("ASSIGN_MODERATOR"); //no
+        Privilege removeModerator = privilegeService.create("REMOVE_MODERATOR"); //no
+
+        List<Privilege> userPrivileges = new ArrayList<>(Arrays.asList(postDraft, postOwnVacancy, deleteOwnVacancy, viewAllVacancy, depositOwnBalance, checkOwnBalance));
         roleService.create("USER", userPrivileges);
 
-        List<Privilege> moderatorPrivileges = new ArrayList<>(Arrays.asList(deleteAnyVacancy, checkAnyBalance));
+        List<Privilege> moderatorPrivileges = new ArrayList<>(Arrays.asList(deleteAnyVacancy, checkAnyBalance, viewAllDrafts));
         moderatorPrivileges.addAll(userPrivileges);
         roleService.create("MODERATOR", moderatorPrivileges);
 
