@@ -2,6 +2,7 @@ package com.blps.lab1.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
@@ -17,9 +18,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfiguration {
-
-    //@Autowired
-    //private UserDetailsService userDetailsService;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -44,28 +42,10 @@ public class SecurityConfiguration {
             registry.requestMatchers("/vacancy/publish").hasRole("ADMIN");
             registry.requestMatchers("/vacancy/draft").hasAuthority("CAN_PUBLISH");
             registry.anyRequest().authenticated();
-        }).formLogin(AbstractAuthenticationFilterConfigurer::permitAll).build();
+        }).httpBasic(Customizer.withDefaults()).formLogin(Customizer.withDefaults()).build();
     }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
-
-
- /*//TODO new privelege for draft
-        //TODO сейчас просто фигня для проверки
-        return httpSecurity.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(registry -> {
-                    registry.requestMatchers("/login").permitAll();
-                    registry.requestMatchers("/vacancy/draft").hasAuthority("POST_VACANCY");//.access("hasAuthority('POST_VACANCY')");
-                    registry.requestMatchers("/vacancy/publish").hasAuthority("VIEW_ALL_VACANCY");//.access("hasAuthority('POST_VACANCY')");
-                    registry.anyRequest().authenticated();
-                })
-                .formLogin(httpSecurityFormLoginConfigurer -> {
-                    httpSecurityFormLoginConfigurer
-                            .loginPage("/login")
-                            .successHandler(new AuthenticationSuccessHandler())
-                            .permitAll();
-                })
-                .build();*/
