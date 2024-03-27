@@ -20,12 +20,12 @@ public class MyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username)  throws UsernameNotFoundException{
         com.blps.lab1.model.User user = userRepository.findByEmail(username); //username = email
         if(user == null) throw new UsernameNotFoundException("нет такого пользователя");
-        System.out.println("aaa");
+        //System.out.println("aaa");
         for(int i = 0; i < user.getStringRoles().length; i++) System.out.println("y");
-        System.out.println(Arrays.toString(user.getStringRoles()));
-        System.out.println(Arrays.toString(user.getAuthorities()));
+        //System.out.println(Arrays.toString(user.getStringRoles()));
+        //System.out.println(Arrays.toString(user.getAuthorities()));
 
-        System.out.println("bbb");
+        //System.out.println("bbb");
         return User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())

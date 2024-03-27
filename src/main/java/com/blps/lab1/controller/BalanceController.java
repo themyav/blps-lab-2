@@ -1,7 +1,8 @@
 package com.blps.lab1.controller;
 
+import com.blps.lab1.dto.BalanceDepositDTO;
 import com.blps.lab1.model.Balance;
-import com.blps.lab1.model.BalanceDTO;
+import com.blps.lab1.dto.BalanceDisplayDTO;
 import com.blps.lab1.util.Result;
 import com.blps.lab1.service.BalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +21,16 @@ public class BalanceController {
     private BalanceService balanceService;
 
     @GetMapping("/all")
-    private ResponseEntity<List<BalanceDTO>> getAll(){
+    private ResponseEntity<List<BalanceDisplayDTO>> getAll(){
         return ResponseEntity.ok(balanceService.getAll());
     }
 
     @PostMapping("/{id}/deposit")
-    public ResponseEntity<?> deposit(@PathVariable Long id, @RequestBody Balance balance) {
+    public ResponseEntity<?> deposit(@PathVariable Long id, @RequestBody BalanceDepositDTO balance) {
         if(balance.getUserId() == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Объект баланса не содержит id пользователя");
         if(!Objects.equals(balance.getUserId(), id)) return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id получателей не совпадают");
-        Double amount = balance.getRealAmount();
+        Double amount = balance.getAmount();
+        if(amount == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Объект баланса не содержит суммы пополнения");
         if(amount < balanceService.MIN_DEPOSIT) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Необходимо внести не менее " + balanceService.MIN_DEPOSIT);
         }

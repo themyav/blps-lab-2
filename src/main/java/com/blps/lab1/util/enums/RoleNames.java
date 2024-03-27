@@ -1,4 +1,4 @@
-package com.blps.lab1.repo;
+package com.blps.lab1.util.enums;
 
 public enum RoleNames {
     USER,

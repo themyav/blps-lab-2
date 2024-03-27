@@ -1,8 +1,8 @@
 package com.blps.lab1.model;
 
-import com.blps.lab1.repo.ModeratorPrivileges;
-import com.blps.lab1.repo.RoleNames;
-import com.blps.lab1.repo.UserPrivileges;
+import com.blps.lab1.util.enums.ModeratorPrivileges;
+import com.blps.lab1.util.enums.RoleNames;
+import com.blps.lab1.util.enums.UserPrivileges;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 

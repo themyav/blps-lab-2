@@ -61,7 +61,7 @@ public class VacancyController {
         Result publishResult = vacancyService.processPublication(vacancy);
 
         if (publishResult == Result.OK) {
-            return ResponseEntity.ok(vacancy); //TODO maybe published vacancy
+            return ResponseEntity.ok(publishResult); //TODO maybe published vacancy
         } else {
             String errorMessage = publishResult.getMessage();
             if (publishResult == Result.USER_NOT_FOUND) {

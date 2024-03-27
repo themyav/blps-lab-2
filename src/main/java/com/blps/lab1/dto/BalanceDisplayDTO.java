@@ -1,9 +1,9 @@
-package com.blps.lab1.model;
+package com.blps.lab1.dto;
 
-public class BalanceDTO {
+public class BalanceDisplayDTO {
     private Double realAmount;
 
-    public BalanceDTO(Double realAmount, Double frozenAmount, String email) {
+    public BalanceDisplayDTO(Double realAmount, Double frozenAmount, String email) {
         this.realAmount = realAmount;
         this.frozenAmount = frozenAmount;
         this.email = email;

@@ -1,7 +1,7 @@
 package com.blps.lab1.service;
 
 import com.blps.lab1.model.Balance;
-import com.blps.lab1.model.BalanceDTO;
+import com.blps.lab1.dto.BalanceDisplayDTO;
 import com.blps.lab1.repo.UserRepository;
 import com.blps.lab1.util.Result;
 import com.blps.lab1.repo.BalanceRepository;
@@ -42,11 +42,11 @@ public class BalanceService {
         return balance.getRealAmount();
     }
 
-    public List<BalanceDTO> getAll(){
+    public List<BalanceDisplayDTO> getAll(){
         List<Balance> balances = balanceRepository.findAll();
-        List<BalanceDTO> dtos = new ArrayList<>();
+        List<BalanceDisplayDTO> dtos = new ArrayList<>();
         for(Balance b : balances){
-            dtos.add(new BalanceDTO(b.getRealAmount(), b.getFrozenAmount(), Objects.requireNonNull(userRepository.findById(b.getUserId()).orElse(null)).getEmail()));
+            dtos.add(new BalanceDisplayDTO(b.getRealAmount(), b.getFrozenAmount(), Objects.requireNonNull(userRepository.findById(b.getUserId()).orElse(null)).getEmail()));
         }
         return dtos;
     }
@@ -90,20 +90,6 @@ public class BalanceService {
     }
 
     public Result freeze(Long id, Double amount){
-        Balance balance = get(id);
-        if(balance == null) return Result.USER_NOT_FOUND;
-        if(balance.getFrozenAmount() >= amount){
-            balance.setFrozenAmount(balance.getFrozenAmount() - amount);
-            balance.setRealAmount(balance.getRealAmount() + amount);
-            balanceRepository.save(balance);
-            return Result.OK;
-        }
-        else {
-            return Result.NOT_ENOUGH_BALANCE;
-        }
-    }
-
-    public Result defreeze(Long id, Double amount){
         Balance balance = balanceRepository.findById(id).orElse(null);
         if(balance == null){
             return Result.USER_NOT_FOUND;
@@ -117,5 +103,21 @@ public class BalanceService {
         else {
             return Result.NOT_ENOUGH_BALANCE;
         }
+    }
+
+    public Result defreeze(Long id, Double amount){
+        Balance balance = get(id);
+        if(balance == null) return Result.USER_NOT_FOUND;
+        if(balance.getFrozenAmount() >= amount){
+            balance.setFrozenAmount(balance.getFrozenAmount() - amount);
+            balance.setRealAmount(balance.getRealAmount() + amount);
+            balanceRepository.save(balance);
+            return Result.OK;
+        }
+        else {
+            return Result.NOT_ENOUGH_BALANCE;
+        }
+
+
     }
 }

@@ -50,7 +50,6 @@ public class VacancyService {
         //проверка того, что вакансия содержит все необходимые поля
         Result validationResult = validateVacancy(vacancy);
         if(validationResult.getCode() != 0) return validationResult;
-
         //проверка того, что вакансия отправлена существующим пользователем
         Long userId = vacancy.getAuthorId();
         Result userValidation = balanceService.exist(userId);
