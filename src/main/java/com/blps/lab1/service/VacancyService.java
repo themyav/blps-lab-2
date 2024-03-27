@@ -12,6 +12,11 @@ import java.util.List;
 @Service
 public class VacancyService {
 
+    private final Integer maxDescriptionLength = 1000;
+    private final Integer minDescriptionLength = 5;
+
+
+
     @Autowired
     private VacancyRepository vacancyRepository;
 
@@ -42,7 +47,9 @@ public class VacancyService {
 
     //Auto-moderator
     public Boolean autoModerateVacancy(Vacancy vacancy){
-        return !vacancy.getTitle().contains("1C");
+        return !vacancy.getTitle().contains("1C") && !vacancy.getDescription().contains("1C")
+                && (minDescriptionLength <= vacancy.getDescription().length() &&
+                vacancy.getDescription().length() <= maxDescriptionLength);
     }
 
     public Result processPublication(Vacancy vacancy){
@@ -60,7 +67,6 @@ public class VacancyService {
 
     }
 
-    //TODO типа тракзакция, но rollback следует делать ток если проблемы?
     public Result publishAttempt(Vacancy vacancy){
         Long userId = vacancy.getAuthorId();
 
@@ -73,6 +79,7 @@ public class VacancyService {
 
             Boolean vacancyApproved = autoModerateVacancy(vacancy);
 
+
             Result defreezeResult = balanceService.defreeze(userId, balanceService.PUBLISH_COST);
             if(defreezeResult != Result.OK) {
                 status.setRollbackOnly();
@@ -80,26 +87,43 @@ public class VacancyService {
             }
 
             if(vacancyApproved){
-                return balanceService.withdraw(userId, balanceService.PUBLISH_COST);
+                publish(vacancy);
+                Result result = balanceService.withdraw(userId, balanceService.PUBLISH_COST);
+                if(result != Result.OK){
+                    status.setRollbackOnly();
+                }
+                return result;
             }
             else{
-                return balanceService.deposit(userId, balanceService.PUBLISH_COST);
+                Result result = balanceService.deposit(userId, balanceService.PUBLISH_COST);
+                if(result != Result.OK){
+                    status.setRollbackOnly();
+                    return result;
+                }
+                else{
+                    saveAsDraft(vacancy);
+                    return Result.VACANCY_NOT_APPROVED;
+                }
+
             }
         });
     }
 
     public Vacancy declineModerated(Long id){
         Vacancy vacancy = vacancyRepository.findById(id).orElse(null);
-        if(vacancy != null){
+        if(vacancy != null && vacancy.isOnModeration()){
             vacancy.setOnModeration(false);
             return vacancyRepository.save(vacancy);
         }
-        else return null;
+        else{
+            System.out.println("vacancy is null");
+            return null;
+        }
     }
 
     public Vacancy publishModerated(Long id){
         Vacancy vacancy = vacancyRepository.findById(id).orElse(null);
-        if(vacancy != null){
+        if(vacancy != null && vacancy.isOnModeration()){
             return publish(vacancy);
         }
         else return null;
@@ -110,6 +134,14 @@ public class VacancyService {
         vacancy.setOnModeration(false);
         return vacancyRepository.save(vacancy);
     }
+
+
+    public Vacancy sendToModeration(Vacancy vacancy) {
+        vacancy.setOnModeration(true);
+        return vacancyRepository.save(vacancy);
+    }
+
+
 
     public Vacancy saveAsDraft(Vacancy vacancy) {
         vacancy.setPublished(false);

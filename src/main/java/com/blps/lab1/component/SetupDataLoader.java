@@ -2,12 +2,10 @@ package com.blps.lab1.component;
 
 import com.blps.lab1.model.Privilege;
 import com.blps.lab1.model.User;
-import com.blps.lab1.service.BalanceService;
+import com.blps.lab1.model.Vacancy;
+import com.blps.lab1.service.*;
 import com.blps.lab1.util.enums.ModeratorPrivileges;
 import com.blps.lab1.util.enums.UserPrivileges;
-import com.blps.lab1.service.PrivilegeService;
-import com.blps.lab1.service.RoleService;
-import com.blps.lab1.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -27,6 +25,9 @@ public class SetupDataLoader implements
 
     @Autowired
     private BalanceService balanceService;
+
+    @Autowired
+    private VacancyService vacancyService;
 
     @Autowired
     private RoleService roleService;
@@ -62,6 +63,9 @@ public class SetupDataLoader implements
         user.setRoles(Collections.singletonList(roleService.findByName("USER")));
         userService.save(user);
 
+        Vacancy dvornik = new Vacancy(user, "Дворник", "Мести пол");
+        dvornik.setOnModeration(true);
+        vacancyService.sendToModeration(dvornik);
 
 
 

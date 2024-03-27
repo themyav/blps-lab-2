@@ -46,8 +46,8 @@ public class SecurityConfiguration {
             registry.requestMatchers("/vacancy/publish").hasAuthority("POST_VACANCY");
 
             registry.requestMatchers("vacancy/moderation").hasAuthority("VIEW_ALL_MODERATION"); //+
-            registry.requestMatchers("vacancy/moderation/*/publish").hasRole("PUBLISH_MODERATED"); //+
-            registry.requestMatchers("vacancy/moderation/*/decline").hasRole("DECLINE_MODERATED"); //+
+            registry.requestMatchers("vacancy/moderation/*/publish").hasAuthority("PUBLISH_MODERATED"); //+
+            registry.requestMatchers("vacancy/moderation/*/decline").hasAuthority("DECLINE_MODERATED"); //+
 
             registry.requestMatchers("balance/*/deposit").hasAuthority("DEPOSIT_OWN_BALANCE");
             registry.anyRequest().authenticated();

@@ -7,6 +7,14 @@ import jakarta.persistence.*;
 @Table(name = "vacancies")
 public class Vacancy {
 
+    public Vacancy(){}
+
+    public Vacancy(User user, String title, String description) {
+        this.user = user;
+        this.authorId = user.getId();
+        this.title = title;
+        this.description = description;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

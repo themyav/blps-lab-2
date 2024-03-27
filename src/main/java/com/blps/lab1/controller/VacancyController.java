@@ -29,14 +29,14 @@ public class VacancyController {
         return ResponseEntity.ok(vacancyService.getAllForModeration());
     }
 
-    @GetMapping("vacancy/moderation/{id}/publish")
+    @GetMapping("/moderation/{id}/publish")
     public ResponseEntity<?> publishModerated(@PathVariable Long id){
         Vacancy vacancy = vacancyService.publishModerated(id);
         if(vacancy != null) return ResponseEntity.ok(vacancy);
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Result.VACANCY_NOT_FOUND.name());
     }
 
-    @PostMapping("vacancy/moderation/{id}/decline")
+    @PostMapping("/moderation/{id}/decline")
     public ResponseEntity<?> declineModerated(@PathVariable Long id, @RequestBody ModeratorComment comment){
         Vacancy vacancy = vacancyService.declineModerated(id);
         if(vacancy != null) return ResponseEntity.ok(comment.getComment());

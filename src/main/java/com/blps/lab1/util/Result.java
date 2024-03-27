@@ -12,7 +12,8 @@ public enum Result {
     NO_VACANCY_AUTHOR(4, "не указан автор вакансии"),
     UNKNOWN_ERROR(5, "ошибка во время выполнения операции"),
 
-    VACANCY_NOT_FOUND(6, "вакансия не найдена");
+    VACANCY_NOT_FOUND(6, "вакансия не найдена"),
+    VACANCY_NOT_APPROVED(7, "Вакансия не прошла модерацию и сохранена как черновик");
         private int code;
 
 
