@@ -3,6 +3,9 @@ package com.blps.lab3.service;
 import com.blps.lab3.util.Result;
 import com.blps.lab3.model.Vacancy;
 import com.blps.lab3.repo.VacancyRepository;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,9 +80,21 @@ public class VacancyService {
     @Autowired
     private Queue queue;
 
+    @Autowired
+    private MqttClient mqttClient;
+
+    public void send() throws MqttException {
+        String message = "hello world!";
+        MqttMessage mqttMessage = new MqttMessage(message.getBytes());
+        mqttClient.publish(queue.getName(), mqttMessage);
+        System.out.println(" [x] Sent '" + message + "' via MQTT");
+        /*String message = "hello world!";
+        template.convertAndSend(queue.getName(), message);
+        System.out.println(" [x] Sent '" + message + "'");*/
+    }
     //@Scheduled(fixedDelay = 1000, initialDelay = 500)
-    public void send() {
-        AtomicInteger dots = new AtomicInteger(0);
+
+     /*AtomicInteger dots = new AtomicInteger(0);
 
         AtomicInteger count = new AtomicInteger(0);
 
@@ -89,10 +104,7 @@ public class VacancyService {
         }
         builder.append(".".repeat(Math.max(0, dots.get())));
         builder.append(count.incrementAndGet());
-        String message = builder.toString();
-        template.convertAndSend(queue.getName(), message);
-        System.out.println(" [x] Sent '" + message + "'");
-    }
+        String message = builder.toString();*/
 
     public Result publishAttempt(Vacancy vacancy){
         Long userId = vacancy.getAuthorId();
@@ -103,7 +115,13 @@ public class VacancyService {
                 status.setRollbackOnly();
                 return freezeResult;
             }
-            send();
+            try{
+                send();
+
+            }catch (MqttException e){
+                System.out.println("Error");
+                return Result.UNKNOWN_ERROR;
+            }
             return Result.OK;
 
         });
