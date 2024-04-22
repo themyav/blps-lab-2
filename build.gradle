@@ -32,3 +32,6 @@ tasks.named('bootWar') {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+tasks.named('bootJar') {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

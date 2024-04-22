@@ -58,6 +58,7 @@ public class BalanceService {
 
 
     public Result deposit(Long id, Double amount) {
+        if(id == null) return Result.USER_NOT_FOUND;
         Balance balance = get(id);
         if (balance == null) {
             return Result.USER_NOT_FOUND;
@@ -94,6 +95,7 @@ public class BalanceService {
         if(balance == null){
             return Result.USER_NOT_FOUND;
         }
+        System.out.println(balance.getRealAmount());
         if(balance.getRealAmount() >= amount){
             balance.setRealAmount(balance.getRealAmount() - amount);
             balance.setFrozenAmount(balance.getFrozenAmount() + amount);

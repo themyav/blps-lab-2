@@ -54,7 +54,7 @@ public class SetupDataLoader implements
         moderatorPrivilege.addAll(userPrivilege);
         roleService.create("MODERATOR", moderatorPrivilege);
 
-        User moderator = new User("a", "a", "a", "$2a$12$jdwdPUMEqNBrxmjyxJhKBuExnSjjKgGu3.W/PcizEn8c4koXfj5Je");
+        User moderator = new User("Кристина", "Мявук", "myav", "$2a$12$jdwdPUMEqNBrxmjyxJhKBuExnSjjKgGu3.W/PcizEn8c4koXfj5Je");
         moderator.setRoles(Collections.singletonList(roleService.findByName("MODERATOR")));
         userService.save(moderator);
         balanceService.deposit(moderator.getId(), 1000.0);
