@@ -68,6 +68,7 @@ public class SetupDataLoader implements
         vacancyService.sendToModeration(dvornik);
 
         userService.setModerators();
+        userService.setUsers();
 
 
         alreadySetup = true;

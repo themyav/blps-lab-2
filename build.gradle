@@ -29,6 +29,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	implementation 'org.springframework.boot:spring-boot-starter-integration'
 	implementation 'org.springframework.integration:spring-integration-mqtt'
+	implementation 'org.springframework.boot:spring-boot-starter-quartz'
+
 	runtimeOnly 'org.postgresql:postgresql'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

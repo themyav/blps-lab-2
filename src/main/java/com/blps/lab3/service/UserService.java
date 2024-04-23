@@ -14,10 +14,20 @@ public class UserService {
 
     private List<User> moderators;
 
+    private List<User>users;
+
 
     public User save(User user){
         if (userRepository.existsByEmail(user.getEmail())) return null;
         return userRepository.save(user);
+    }
+
+    public List<User> getUsers(){
+        return users;
+    }
+
+    public void setUsers(){
+        users = userRepository.findAll().stream().toList();
     }
 
     public List<User> getModerators(){
