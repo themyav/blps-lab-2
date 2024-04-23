@@ -19,8 +19,17 @@ public class User {
     @Column(nullable = false)
     private String firstName;
     private String lastName;
+    private Boolean emailSubscription = true;
     @Column(unique = true, nullable = false)
     private String email;
+
+    public Boolean getEmailSubscription() {
+        return emailSubscription;
+    }
+
+    public void setEmailSubscription(Boolean emailSubscription) {
+        this.emailSubscription = emailSubscription;
+    }
 
     @Column(nullable = false)
     @JsonIgnore

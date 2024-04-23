@@ -23,7 +23,7 @@ public class QuartzConfiguration {
     @Bean
     public Trigger printJobTrigger() {
         SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
-                .withIntervalInSeconds(10)
+                .withIntervalInSeconds(30)
                 .repeatForever();
 
         return TriggerBuilder.newTrigger()

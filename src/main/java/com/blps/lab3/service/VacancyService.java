@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class VacancyService {
@@ -27,6 +28,10 @@ public class VacancyService {
 
     public VacancyService(TransactionTemplate transactionTemplate) {
         this.transactionTemplate = transactionTemplate;
+    }
+
+    public List<Vacancy> getAllByUserId(Long id){
+        return vacancyRepository.findAll().stream().filter(x -> Objects.equals(x.getAuthorId(), id)).toList();
     }
 
     public List<Vacancy> getAllPublished(){

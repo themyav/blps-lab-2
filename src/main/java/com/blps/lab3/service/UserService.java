@@ -26,6 +26,10 @@ public class UserService {
         return users;
     }
 
+    public List<User>getSubscribedUsers(){
+        return users == null ? null : users.stream().filter(User::getEmailSubscription).toList();
+    }
+
     public void setUsers(){
         users = userRepository.findAll().stream().toList();
     }

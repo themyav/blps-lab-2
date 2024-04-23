@@ -59,7 +59,7 @@ public class SetupDataLoader implements
         userService.save(moderator);
         balanceService.deposit(moderator.getId(), 1000.0);
 
-        User user = new User("Иван", "Иванов", "Ivan@ivan.ru", "$2a$12$jdwdPUMEqNBrxmjyxJhKBuExnSjjKgGu3.W/PcizEn8c4koXfj5Je");
+        User user = new User("Иван", "Иванов", "Myavochka1119@gmail.com", "$2a$12$jdwdPUMEqNBrxmjyxJhKBuExnSjjKgGu3.W/PcizEn8c4koXfj5Je");
         user.setRoles(Collections.singletonList(roleService.findByName("USER")));
         userService.save(user);
 

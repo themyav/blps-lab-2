@@ -37,6 +37,20 @@ public class RabbitMQService {
         System.out.println(" [x] Sent '" + message + "' via MQTT");
     }
 
+    public void sendUserStats(User user, List<Vacancy>vacancies){
+        StringBuilder messageBody = new StringBuilder("Уважаемый(ая) " + user.getFirstName() + " " + user.getLastName() + "!\n" +
+                "статистика ваших вакансий за последнюю неделю:\n");
+        for(Vacancy vacancy : vacancies) messageBody.append(vacancy.toString()).append("\n");
+        try {
+            String message = objectMapper.writeValueAsString(new EmailNotification(user.getEmail(), "Статистика ваших объявлений", messageBody.toString()));
+            send(message);
+        } catch (JsonProcessingException | MqttException e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
     public Result sendUserNotification(Vacancy vacancy, ModeratorComment moderatorComment) {
         User user = userService.findUserById(vacancy.getAuthorId());
         if (user == null) return Result.USER_NOT_FOUND;
@@ -47,7 +61,7 @@ public class RabbitMQService {
             } else {
                 message = objectMapper.writeValueAsString(new EmailNotification(user.getEmail(),
                         "Ваша вакансия не прошла модерацию",
-                        vacancy.toString() + "Комментарий модератора:\n" + moderatorComment.getComment()));
+                        vacancy + "Комментарий модератора:\n" + moderatorComment.getComment()));
             }
             send(message);
             return Result.OK;
