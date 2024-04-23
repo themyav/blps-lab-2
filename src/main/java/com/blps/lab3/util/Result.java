@@ -13,7 +13,10 @@ public enum Result {
     UNKNOWN_ERROR(5, "ошибка во время выполнения операции"),
 
     VACANCY_NOT_FOUND(6, "вакансия не найдена"),
-    VACANCY_NOT_APPROVED(7, "Вакансия не прошла модерацию и сохранена как черновик");
+    VACANCY_NOT_APPROVED(7, "Вакансия не прошла модерацию и сохранена как черновик"),
+
+    MQTT_ERROR(8, "ошибка отправки по mqtt"),
+    JSON_ERROR(9, "ошибка сериализации объекта");
         private int code;
 
 

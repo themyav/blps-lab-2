@@ -89,4 +89,12 @@ public class Vacancy {
     public Long getAuthorId() {
         return authorId;
     }
+
+    @Override
+    public String toString() {
+        return "Вакансия №" + id + "\n" +
+                "автор: " + authorId + "\n" +
+                "название: " + title + "\n" +
+                "описание: " + description + "\n";
+    }
 }

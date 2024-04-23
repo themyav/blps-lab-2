@@ -1,8 +1,12 @@
 package com.blps.lab3.service;
 
+import com.blps.lab3.model.User;
+import com.blps.lab3.util.ModeratorNotification;
 import com.blps.lab3.util.Result;
 import com.blps.lab3.model.Vacancy;
 import com.blps.lab3.repo.VacancyRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -32,6 +36,8 @@ public class VacancyService {
 
     @Autowired
     public final TransactionTemplate transactionTemplate;
+    @Autowired
+    private UserService userService;
 
     public VacancyService(TransactionTemplate transactionTemplate) {
         this.transactionTemplate = transactionTemplate;
@@ -75,36 +81,26 @@ public class VacancyService {
     }
 
     @Autowired
-    private RabbitTemplate template;
-
-    @Autowired
     private Queue queue;
 
     @Autowired
     private MqttClient mqttClient;
 
-    public void send() throws MqttException {
-        String message = "hello world!";
-        MqttMessage mqttMessage = new MqttMessage(message.getBytes());
-        mqttClient.publish(queue.getName(), mqttMessage);
-        System.out.println(" [x] Sent '" + message + "' via MQTT");
-        /*String message = "hello world!";
-        template.convertAndSend(queue.getName(), message);
-        System.out.println(" [x] Sent '" + message + "'");*/
+    public void send(Vacancy vacancy) {
+
+        List<User> moderators = userService.getModerators();
+        ObjectMapper objectMapper = new ObjectMapper();
+        moderators.forEach(moderator -> {
+            try{
+                String message = objectMapper.writeValueAsString(new ModeratorNotification(moderator.getEmail(), "У вас новая вакансия для модерации!", vacancy.toString()));
+                MqttMessage mqttMessage = new MqttMessage(message.getBytes());
+                mqttClient.publish(queue.getName(), mqttMessage);
+                System.out.println(" [x] Sent '" + message + "' via MQTT");
+            }catch (MqttException | JsonProcessingException e) {
+                throw new RuntimeException(e); //TODO может умнее
+            }
+        });
     }
-    //@Scheduled(fixedDelay = 1000, initialDelay = 500)
-
-     /*AtomicInteger dots = new AtomicInteger(0);
-
-        AtomicInteger count = new AtomicInteger(0);
-
-        StringBuilder builder = new StringBuilder("Hello");
-        if (dots.getAndIncrement() == 4) {
-            dots.set(1);
-        }
-        builder.append(".".repeat(Math.max(0, dots.get())));
-        builder.append(count.incrementAndGet());
-        String message = builder.toString();*/
 
     public Result publishAttempt(Vacancy vacancy){
         Long userId = vacancy.getAuthorId();
@@ -115,17 +111,16 @@ public class VacancyService {
                 status.setRollbackOnly();
                 return freezeResult;
             }
-            try{
-                send();
+            System.out.println("AAAAAA");
+            send(vacancy);
 
-            }catch (MqttException e){
-                System.out.println("Error");
-                return Result.UNKNOWN_ERROR;
-            }
             return Result.OK;
 
         });
     }
+
+
+
      /*Boolean vacancyApproved = autoModerateVacancy(vacancy);
 
 

@@ -15,7 +15,7 @@ public class RabbitMQConfiguration {
         return new Queue("hello");
     }
 
-    @Bean
+   @Bean
     public MqttClient mqttClient() throws MqttException {
         String broker = "tcp://localhost:1883";
         String clientId = "mqtt-client";
