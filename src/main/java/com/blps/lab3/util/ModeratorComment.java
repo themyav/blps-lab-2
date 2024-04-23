@@ -1,17 +1,20 @@
 package com.blps.lab3.util;
 
-public class ModeratorComment {
-    String comment;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    public ModeratorComment(String comment) {
-        this.comment = comment;
+public class ModeratorComment {
+    @JsonProperty("textcomment")
+    String textComment;
+
+    public ModeratorComment(String textComment) {
+        this.textComment = textComment;
     }
 
     public String getComment() {
-        return comment;
+        return textComment;
     }
 
     public void setComment(String comment) {
-        this.comment = comment;
+        this.textComment = comment;
     }
 }

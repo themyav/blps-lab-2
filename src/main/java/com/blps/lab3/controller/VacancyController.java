@@ -30,16 +30,16 @@ public class VacancyController {
 
     @GetMapping("/moderation/{id}/publish")
     public ResponseEntity<?> publishModerated(@PathVariable Long id){
-        Vacancy vacancy = vacancyService.publishModerated(id);
-        if(vacancy != null) return ResponseEntity.ok(vacancy);
-        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Result.VACANCY_NOT_FOUND.name());
+        Result result = vacancyService.publishModerated(id);
+        if(result == Result.OK) return ResponseEntity.ok().body(result.getMessage());
+        else return ResponseEntity.badRequest().body(result.getMessage());
     }
 
     @PostMapping("/moderation/{id}/decline")
-    public ResponseEntity<?> declineModerated(@PathVariable Long id, @RequestBody ModeratorComment comment){
-        Vacancy vacancy = vacancyService.declineModerated(id);
-        if(vacancy != null) return ResponseEntity.ok(comment.getComment());
-        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Result.VACANCY_NOT_FOUND.name());
+    public ResponseEntity<?> declineModerated(@PathVariable Long id, @RequestBody String comment){
+        Result result = vacancyService.declineModerated(id, new ModeratorComment(comment));
+        if(result == Result.OK) return ResponseEntity.ok().body(result.getMessage());
+        else return ResponseEntity.badRequest().body(result.getMessage());
     }
 
 

@@ -1,5 +1,6 @@
 package com.blps.lab3.service;
 
+import com.blps.lab3.util.ModeratorComment;
 import com.blps.lab3.util.enums.Result;
 import com.blps.lab3.model.Vacancy;
 import com.blps.lab3.repo.VacancyRepository;
@@ -12,11 +13,6 @@ import java.util.List;
 @Service
 public class VacancyService {
 
-    private final Integer maxDescriptionLength = 1000;
-    private final Integer minDescriptionLength = 5;
-
-
-
     @Autowired
     private VacancyRepository vacancyRepository;
 
@@ -25,8 +21,7 @@ public class VacancyService {
 
     @Autowired
     public final TransactionTemplate transactionTemplate;
-    @Autowired
-    private UserService userService;
+
     @Autowired
     private RabbitMQService rabbitMQService;
 
@@ -49,23 +44,15 @@ public class VacancyService {
         return Result.OK;
     }
 
-    //Auto-moderator
-    public Boolean autoModerateVacancy(Vacancy vacancy){
-        return !vacancy.getTitle().contains("1C") && !vacancy.getDescription().contains("1C")
-                && (minDescriptionLength <= vacancy.getDescription().length() &&
-                vacancy.getDescription().length() <= maxDescriptionLength);
-    }
-
     public Result processPublication(Vacancy vacancy){
 
         //проверка того, что вакансия содержит все необходимые поля
         Result validationResult = validateVacancy(vacancy);
-        if(validationResult.getCode() != 0) return validationResult;
+        if(validationResult != Result.OK) return validationResult;
         //проверка того, что вакансия отправлена существующим пользователем
         Long userId = vacancy.getAuthorId();
         Result userValidation = balanceService.exist(userId);
-        if(userValidation.getCode() != 0) return userValidation;
-
+        if(userValidation != Result.OK) return userValidation;
         //транзакция
         return publishAttempt(vacancy);
 
@@ -92,55 +79,39 @@ public class VacancyService {
         });
     }
 
-
-
-     /*Boolean vacancyApproved = autoModerateVacancy(vacancy);
-
-
+    public Result declineModerated(Long id, ModeratorComment comment){
+        //TODO duplicated defreeze
+        return transactionTemplate.execute(status -> {
+            Vacancy vacancy = vacancyRepository.findById(id).orElse(null);
+            if(vacancy == null || !vacancy.isOnModeration()) return Result.VACANCY_NOT_FOUND;
+            Long userId = vacancy.getAuthorId();
+            System.out.println("AAAAA1");
             Result defreezeResult = balanceService.defreeze(userId, balanceService.PUBLISH_COST);
             if(defreezeResult != Result.OK) {
                 status.setRollbackOnly();
                 return defreezeResult;
             }
+            System.out.println("AAAAA2");
 
-            if(vacancyApproved){
-                publish(vacancy);
-                Result result = balanceService.withdraw(userId, balanceService.PUBLISH_COST);
-                if(result != Result.OK){
-                    status.setRollbackOnly();
-                }
-                return result;
-            }
-            else{
-                Result result = balanceService.deposit(userId, balanceService.PUBLISH_COST);
-                if(result != Result.OK){
-                    status.setRollbackOnly();
-                    return result;
-                }
-                else{
-                    saveAsDraft(vacancy);
-                    return Result.VACANCY_NOT_APPROVED;
-                }
-
-            }*/
-
-    public Vacancy declineModerated(Long id){
-        Vacancy vacancy = vacancyRepository.findById(id).orElse(null);
-        if(vacancy != null && vacancy.isOnModeration()){
             vacancy.setOnModeration(false);
-            return vacancyRepository.save(vacancy);
-        }
-        else{
-            System.out.println("vacancy is null");
-            return null;
-        }
+            Vacancy notPublished = saveAsDraft(vacancy);
+
+            Result sendResult = rabbitMQService.sendUserNotification(notPublished, comment);
+            if(sendResult != Result.OK){
+                status.setRollbackOnly();
+                return sendResult;
+            }
+            return Result.OK;
+
+
+        });
     }
 
     public Result publishModerated(Long id){
 
         return transactionTemplate.execute(status -> {
             Vacancy vacancy = vacancyRepository.findById(id).orElse(null);
-            if(vacancy == null || vacancy.isOnModeration()) return Result.VACANCY_NOT_FOUND;
+            if(vacancy == null || !vacancy.isOnModeration()) return Result.VACANCY_NOT_FOUND;
 
             Long userId = vacancy.getAuthorId();
             Result defreezeResult = balanceService.defreeze(userId, balanceService.PUBLISH_COST);
@@ -171,6 +142,7 @@ public class VacancyService {
 
 
     public Vacancy sendToModeration(Vacancy vacancy) {
+        vacancy.setPublished(false);
         vacancy.setOnModeration(true);
         return vacancyRepository.save(vacancy);
     }
