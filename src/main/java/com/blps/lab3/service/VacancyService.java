@@ -1,24 +1,13 @@
 package com.blps.lab3.service;
 
-import com.blps.lab3.model.User;
-import com.blps.lab3.util.ModeratorNotification;
-import com.blps.lab3.util.Result;
+import com.blps.lab3.util.enums.Result;
 import com.blps.lab3.model.Vacancy;
 import com.blps.lab3.repo.VacancyRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class VacancyService {
@@ -38,6 +27,8 @@ public class VacancyService {
     public final TransactionTemplate transactionTemplate;
     @Autowired
     private UserService userService;
+    @Autowired
+    private RabbitMQService rabbitMQService;
 
     public VacancyService(TransactionTemplate transactionTemplate) {
         this.transactionTemplate = transactionTemplate;
@@ -80,27 +71,7 @@ public class VacancyService {
 
     }
 
-    @Autowired
-    private Queue queue;
 
-    @Autowired
-    private MqttClient mqttClient;
-
-    public void send(Vacancy vacancy) {
-
-        List<User> moderators = userService.getModerators();
-        ObjectMapper objectMapper = new ObjectMapper();
-        moderators.forEach(moderator -> {
-            try{
-                String message = objectMapper.writeValueAsString(new ModeratorNotification(moderator.getEmail(), "У вас новая вакансия для модерации!", vacancy.toString()));
-                MqttMessage mqttMessage = new MqttMessage(message.getBytes());
-                mqttClient.publish(queue.getName(), mqttMessage);
-                System.out.println(" [x] Sent '" + message + "' via MQTT");
-            }catch (MqttException | JsonProcessingException e) {
-                throw new RuntimeException(e); //TODO может умнее
-            }
-        });
-    }
 
     public Result publishAttempt(Vacancy vacancy){
         Long userId = vacancy.getAuthorId();
@@ -111,11 +82,13 @@ public class VacancyService {
                 status.setRollbackOnly();
                 return freezeResult;
             }
-            System.out.println("AAAAAA");
-            send(vacancy);
-
+            Vacancy savedVacancy = sendToModeration(vacancy);
+            Result sendToModerators = rabbitMQService.sendModeratorNotification(savedVacancy);
+            if(sendToModerators != Result.OK){
+                status.setRollbackOnly();
+                return sendToModerators;
+            }
             return Result.OK;
-
         });
     }
 
@@ -163,12 +136,31 @@ public class VacancyService {
         }
     }
 
-    public Vacancy publishModerated(Long id){
-        Vacancy vacancy = vacancyRepository.findById(id).orElse(null);
-        if(vacancy != null && vacancy.isOnModeration()){
-            return publish(vacancy);
-        }
-        else return null;
+    public Result publishModerated(Long id){
+
+        return transactionTemplate.execute(status -> {
+            Vacancy vacancy = vacancyRepository.findById(id).orElse(null);
+            if(vacancy == null || vacancy.isOnModeration()) return Result.VACANCY_NOT_FOUND;
+
+            Long userId = vacancy.getAuthorId();
+            Result defreezeResult = balanceService.defreeze(userId, balanceService.PUBLISH_COST);
+            if(defreezeResult != Result.OK) {
+                status.setRollbackOnly();
+                return defreezeResult;
+            }
+            Vacancy published = publish(vacancy);
+            Result withdrawResult = balanceService.withdraw(userId, balanceService.PUBLISH_COST);
+            if(withdrawResult != Result.OK){
+                status.setRollbackOnly();
+                return withdrawResult;
+            }
+            Result sendResult = rabbitMQService.sendUserNotification(published, null);
+            if(sendResult != Result.OK){
+                status.setRollbackOnly();
+                return sendResult;
+            }
+            return Result.OK;
+        });
     }
 
     public Vacancy publish(Vacancy vacancy) {

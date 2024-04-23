@@ -2,7 +2,7 @@ package com.blps.lab3.controller;
 
 import com.blps.lab3.dto.BalanceDepositDTO;
 import com.blps.lab3.dto.BalanceDisplayDTO;
-import com.blps.lab3.util.Result;
+import com.blps.lab3.util.enums.Result;
 import com.blps.lab3.service.BalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

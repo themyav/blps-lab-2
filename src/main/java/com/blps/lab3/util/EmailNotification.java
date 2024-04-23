@@ -1,11 +1,11 @@
 package com.blps.lab3.util;
 
-public class ModeratorNotification {
+public class EmailNotification {
     private String receiver;
     private String topic;
     private String messageBody;
 
-    public ModeratorNotification(String receiver, String topic, String messageBody) {
+    public EmailNotification(String receiver, String topic, String messageBody) {
         this.receiver = receiver;
         this.topic = topic;
         this.messageBody = messageBody;

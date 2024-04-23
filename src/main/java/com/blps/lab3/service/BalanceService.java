@@ -3,7 +3,7 @@ package com.blps.lab3.service;
 import com.blps.lab3.model.Balance;
 import com.blps.lab3.dto.BalanceDisplayDTO;
 import com.blps.lab3.repo.UserRepository;
-import com.blps.lab3.util.Result;
+import com.blps.lab3.util.enums.Result;
 import com.blps.lab3.repo.BalanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

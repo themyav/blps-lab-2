@@ -1,7 +1,7 @@
 package com.blps.lab3.controller;
 
 import com.blps.lab3.util.ModeratorComment;
-import com.blps.lab3.util.Result;
+import com.blps.lab3.util.enums.Result;
 import com.blps.lab3.service.VacancyService;
 import com.blps.lab3.model.Vacancy;
 import org.springframework.beans.factory.annotation.Autowired;

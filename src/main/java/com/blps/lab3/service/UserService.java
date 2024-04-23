@@ -27,4 +27,8 @@ public class UserService {
     public void setModerators(){
         moderators = userRepository.findAll().stream().filter(User::getModerator).toList();
     }
+
+    public User findUserById(Long id){
+        return userRepository.findById(id).orElse(null);
+    }
 }
